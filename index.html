@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#FAF0F2">
+  <meta name="theme-color" content="#F2C4CE">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mon Journal">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODAgMzgwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPHJlY3QgeD0iNDAiIHk9IjQwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjY0IiBmaWxsPSIjRjJDNENFIi8+CiAgPGcgZmlsbD0iI0MwNjg3QSI+CiAgICA8cG9seWdvbiBwb2ludHM9IjExOCwyOTUgMTM4LDI5NSAxNjgsMjEwIDE0OCwyMTAiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iMjYyLDI5NSAyNDIsMjk1IDIxMiwyMTAgMjMyLDIxMCIvPgogICAgPHBhdGggZD0iTTExOCwyNzAgUTE0OCwyMzAgMTY4LDIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzA2ODdBIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik0yNjIsMjcwIFEyMzIsMjMwIDIxMiwyMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0MwNjg3QSIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8cmVjdCB4PSIxMTUiIHk9IjI4NSIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNCIgcng9IjUiLz4KICAgIDxyZWN0IHg9IjE0OCIgeT0iMjA2IiB3aWR0aD0iODQiIGhlaWdodD0iMTMiIHJ4PSI0Ii8+CiAgICA8cG9seWdvbiBwb2ludHM9IjE1NSwyMDYgMTcwLDE1NSAyMTAsMTU1IDIyNSwyMDYiLz4KICAgIDxyZWN0IHg9IjE2MyIgeT0iMTQ4IiB3aWR0aD0iNTQiIGhlaWdodD0iMTEiIHJ4PSI0Ii8+CiAgICA8cG9seWdvbiBwb2ludHM9IjE2OCwxNDggMTgwLDEwMCAyMDAsMTAwIDIxMiwxNDgiLz4KICAgIDxyZWN0IHg9IjE3MiIgeT0iOTQiIHdpZHRoPSIzNiIgaGVpZ2h0PSIxMCIgcng9IjQiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iMTc2LDk0IDE4Niw2MiAxOTQsNjIgMjA0LDk0Ii8+CiAgICA8cmVjdCB4PSIxODciIHk9IjQ1IiB3aWR0aD0iNiIgaGVpZ2h0PSIyMCIgcng9IjMiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iMTg2LDQ2IDE5MCwzNiAxOTQsNDYiLz4KICA8L2c+Cjwvc3ZnPg==">
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1vbiBKb3VybmFsIiwKICAic2hvcnRfbmFtZSI6ICJNb24gSm91cm5hbCIsCiAgImRlc2NyaXB0aW9uIjogIkRpw6FyaW8gZGUgbG9va3MiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI0ZERjhGNSIsCiAgInRoZW1lX2NvbG9yIjogIiNGMkM0Q0UiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhacFpYZENiM2c5SWpBZ01DQXpPREFnTXpnd0lpQjNhV1IwYUQwaU5URXlJaUJvWldsbmFIUTlJalV4TWlJK0NpQWdQSEpsWTNRZ2VEMGlOREFpSUhrOUlqUXdJaUIzYVdSMGFEMGlNekF3SWlCb1pXbG5hSFE5SWpNd01DSWdjbmc5SWpZMElpQm1hV3hzUFNJalJqSkRORU5GSWk4K0NpQWdQR2NnWm1sc2JEMGlJME13TmpnM1FTSStDaUFnSUNBOGNHOXNlV2R2YmlCd2IybHVkSE05SWpFeE9Dd3lPVFVnTVRNNExESTVOU0F4Tmpnc01qRXdJREUwT0N3eU1UQWlMejRLSUNBZ0lEeHdiMng1WjI5dUlIQnZhVzUwY3owaU1qWXlMREk1TlNBeU5ESXNNamsxSURJeE1pd3lNVEFnTWpNeUxESXhNQ0l2UGdvZ0lDQWdQSEJoZEdnZ1pEMGlUVEV4T0N3eU56QWdVVEUwT0N3eU16QWdNVFk0TERJeE1DSWdabWxzYkQwaWJtOXVaU0lnYzNSeWIydGxQU0lqUXpBMk9EZEJJaUJ6ZEhKdmEyVXRkMmxrZEdnOUlqRXdJaUJ6ZEhKdmEyVXRiR2x1WldOaGNEMGljbTkxYm1RaUx6NEtJQ0FnSUR4d1lYUm9JR1E5SWsweU5qSXNNamN3SUZFeU16SXNNak13SURJeE1pd3lNVEFpSUdacGJHdzlJbTV2Ym1VaUlITjBjbTlyWlQwaUkwTXdOamczUVNJZ2MzUnliMnRsTFhkcFpIUm9QU0l4TUNJZ2MzUnliMnRsTFd4cGJtVmpZWEE5SW5KdmRXNWtJaTgrQ2lBZ0lDQThjbVZqZENCNFBTSXhNVFVpSUhrOUlqSTROU0lnZDJsa2RHZzlJakUxTUNJZ2FHVnBaMmgwUFNJeE5DSWdjbmc5SWpVaUx6NEtJQ0FnSUR4eVpXTjBJSGc5SWpFME9DSWdlVDBpTWpBMklpQjNhV1IwYUQwaU9EUWlJR2hsYVdkb2REMGlNVE1pSUhKNFBTSTBJaTgrQ2lBZ0lDQThjRzlzZVdkdmJpQndiMmx1ZEhNOUlqRTFOU3d5TURZZ01UY3dMREUxTlNBeU1UQXNNVFUxSURJeU5Td3lNRFlpTHo0S0lDQWdJRHh5WldOMElIZzlJakUyTXlJZ2VUMGlNVFE0SWlCM2FXUjBhRDBpTlRRaUlHaGxhV2RvZEQwaU1URWlJSEo0UFNJMElpOCtDaUFnSUNBOGNHOXNlV2R2YmlCd2IybHVkSE05SWpFMk9Dd3hORGdnTVRnd0xERXdNQ0F5TURBc01UQXdJREl4TWl3eE5EZ2lMejRLSUNBZ0lEeHlaV04wSUhnOUlqRTNNaUlnZVQwaU9UUWlJSGRwWkhSb1BTSXpOaUlnYUdWcFoyaDBQU0l4TUNJZ2NuZzlJalFpTHo0S0lDQWdJRHh3YjJ4NVoyOXVJSEJ2YVc1MGN6MGlNVGMyTERrMElERTROaXcyTWlBeE9UUXNOaklnTWpBMExEazBJaTgrQ2lBZ0lDQThjbVZqZENCNFBTSXhPRGNpSUhrOUlqUTFJaUIzYVdSMGFEMGlOaUlnYUdWcFoyaDBQU0l5TUNJZ2NuZzlJak1pTHo0S0lDQWdJRHh3YjJ4NVoyOXVJSEJ2YVc1MGN6MGlNVGcyTERRMklERTVNQ3d6TmlBeE9UUXNORFlpTHo0S0lDQThMMmMrQ2p3dmMzWm5QZz09IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIn0KICBdCn0=">
   <title>Mon Journal</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -290,8 +293,44 @@ var state={looks:[],currentMonth:new Date().getMonth(),currentYear:new Date().ge
 
 function ic(id,s){s=s||20;return'<svg width="'+s+'" height="'+s+'" style="display:block"><use href="#'+id+'"/></svg>';}
 
-function loadData(){try{var r=localStorage.getItem(STORAGE_KEY);if(r){var p=JSON.parse(r);state.looks=Array.isArray(p.looks)?p.looks:[];}}catch(e){state.looks=[];}}
-function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({looks:state.looks}));}catch(e){showToast('Erro ao salvar.');}}
+function loadData(){
+  try{
+    var r=localStorage.getItem(STORAGE_KEY);
+    if(r){
+      var p=JSON.parse(r);
+      var looks=Array.isArray(p.looks)?p.looks:[];
+      // Restaurar fotos: cada foto salva separadamente
+      looks.forEach(function(look){
+        if(Array.isArray(look.photoKeys)&&look.photoKeys.length){
+          look.photos=look.photoKeys.map(function(k){
+            return localStorage.getItem(k)||null;
+          }).filter(Boolean);
+        }
+        if(!look.photos)look.photos=[];
+      });
+      state.looks=looks;
+    }
+  }catch(e){console.error('loadData error',e);state.looks=[];}
+}
+function saveData(){
+  try{
+    // Salvar fotos separadamente (evita limite do JSON)
+    var looksToSave=state.looks.map(function(look){
+      var photoKeys=[];
+      (look.photos||[]).forEach(function(photo,i){
+        var key='mj_photo_'+look.id+'_'+i;
+        try{localStorage.setItem(key,photo);}catch(e){showToast('Armazenamento cheio!');}
+        photoKeys.push(key);
+      });
+      return {id:look.id,date:look.date,note:look.note,tags:look.tags,photoKeys:photoKeys};
+    });
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({looks:looksToSave}));
+    return true;
+  }catch(e){
+    showToast('Erro ao salvar. Tente remover looks antigos.');
+    return false;
+  }
+}
 
 var MP=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 var DP=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
@@ -474,6 +513,31 @@ function renderGallery(){
   list.innerHTML='';list.appendChild(grid);
 }
 
+// ── COMPRESSÃO DE IMAGEM ──────────────────────
+function compressImage(file, maxSize, quality, callback) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var w = img.width, h = img.height;
+      // Redimensiona mantendo proporção
+      if (w > h) {
+        if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+      } else {
+        if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   loadData();renderCalendar();renderFeed();renderPhotosGrid();
 
@@ -504,7 +568,13 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('back-from-detail').addEventListener('click',function(){showScreen('home-screen');state.activeView==='gallery'?renderGallery():renderFeed();});
   document.getElementById('file-input').addEventListener('change',function(e){
     var files=Array.from(e.target.files);var pending=files.length;if(!pending)return;
-    files.forEach(function(file){var r=new FileReader();r.onload=function(ev){state.pendingPhotos.push(ev.target.result);pending--;if(pending===0)renderPhotosGrid();};r.readAsDataURL(file);});
+    files.forEach(function(file){
+      compressImage(file, 1080, 0.75, function(compressed){
+        state.pendingPhotos.push(compressed);
+        pending--;
+        if(pending===0) renderPhotosGrid();
+      });
+    });
     e.target.value='';
   });
   document.getElementById('add-tag-btn').addEventListener('click',addTag);
@@ -512,6 +582,8 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('save-btn').addEventListener('click',saveLook);
   document.getElementById('delete-btn').addEventListener('click',function(){
     if(!state.editingId)return;
+    var toDelete=state.looks.find(function(l){return l.id===state.editingId;});
+    if(toDelete&&toDelete.photoKeys){toDelete.photoKeys.forEach(function(k){localStorage.removeItem(k);});}
     state.looks=state.looks.filter(function(l){return l.id!==state.editingId;});
     saveData();showToast('Look removido.');showScreen('home-screen');renderCalendar();
     state.activeView==='gallery'?renderGallery():renderFeed();
