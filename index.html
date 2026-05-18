@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FAF0F2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Mon Journal</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --rose:#F2C4CE; --rose-light:#FAF0F2; --rose-mid:#E8A0B0; --rose-dark:#C0687A;
+  --lavender:#E8E0F5; --lavender-dark:#9B7EC8; --cream:#FDF8F5; --sand:#F5EDE8;
+  --text-dark:#3A2530; --text-mid:#7A5060; --text-soft:#B08090; --white:#FFFFFF;
+}
+html,body { height:100%; background:var(--cream); font-family:Georgia,'Times New Roman',serif; color:var(--text-dark); -webkit-font-smoothing:antialiased; overscroll-behavior:none; }
+#app { max-width:430px; margin:0 auto; min-height:100dvh; background:var(--cream); position:relative; }
+.screen { display:none; padding-bottom:80px; min-height:100dvh; }
+.screen.active { display:block; }
+
+.header { background:var(--rose-light); border-bottom:1px solid var(--rose); padding:20px 20px 16px; text-align:center; position:relative; }
+.header-title { font-size:24px; font-weight:normal; color:var(--text-dark); letter-spacing:0.05em; }
+.header-sub { font-size:11px; color:var(--text-soft); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:2px; }
+.header--inner .header-title { font-size:18px; }
+.header-back { position:absolute; left:16px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-mid); padding:6px; display:flex; align-items:center; border-radius:8px; transition:background 0.15s; }
+.header-back:hover { background:var(--rose); }
+
+.calendar-wrap { padding:20px 20px 16px; }
+.cal-month-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.cal-month-nav button { background:var(--rose-light); border:1px solid var(--rose); border-radius:50%; width:34px; height:34px; cursor:pointer; color:var(--text-mid); display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+.cal-month-nav button:hover { background:var(--rose); }
+.cal-month-label { font-size:16px; color:var(--text-dark); letter-spacing:0.06em; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-day-name { text-align:center; font-size:11px; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; padding:4px 0 8px; }
+.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text-mid); border-radius:50%; cursor:pointer; position:relative; transition:background 0.15s; user-select:none; }
+.cal-day:hover { background:var(--rose-light); }
+.cal-day.empty { cursor:default; pointer-events:none; }
+.cal-day.today { background:var(--lavender); color:var(--lavender-dark); font-weight:bold; }
+.cal-day.selected { background:var(--rose-mid); color:var(--white); }
+.cal-day.has-entry::after { content:''; width:5px; height:5px; background:var(--rose-dark); border-radius:50%; position:absolute; bottom:3px; }
+.cal-day.selected.has-entry::after { background:rgba(255,255,255,0.7); }
+
+.section-divider { height:1px; background:var(--rose-light); margin:0 20px; }
+.feed-wrap { padding:16px 20px; }
+.feed-title { font-size:12px; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:14px; }
+
+.look-card { background:var(--white); border:1px solid var(--rose); border-radius:16px; overflow:hidden; margin-bottom:16px; transition:transform 0.15s,box-shadow 0.15s; }
+.look-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(192,104,122,0.12); }
+.card-photos-track { display:flex; transition:transform 0.3s ease; }
+.card-photos-track img { flex-shrink:0; width:100%; object-fit:cover; }
+.card-photo-dots { position:absolute; bottom:8px; left:0; right:0; display:flex; justify-content:center; gap:5px; pointer-events:none; }
+.card-photo-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); transition:background 0.2s; pointer-events:all; cursor:pointer; }
+.card-photo-dot.active { background:white; }
+.card-photos-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.75); border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-dark); }
+.card-photos-nav.prev { left:8px; }
+.card-photos-nav.next { right:8px; }
+.card-photos-nav:hover { background:rgba(255,255,255,0.95); }
+.look-card-img-placeholder { width:100%; height:220px; background:linear-gradient(135deg,var(--rose-light) 0%,var(--lavender) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-soft); font-size:13px; }
+.look-card-body { padding:14px 16px 16px; cursor:pointer; }
+.look-card-date { font-size:11px; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:5px; }
+.look-card-note { font-size:14px; color:var(--text-dark); line-height:1.55; }
+.look-card-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.tag { background:var(--rose-light); color:var(--rose-dark); border-radius:20px; padding:3px 11px; font-size:11px; letter-spacing:0.05em; font-family:Georgia,serif; }
+.empty-feed { text-align:center; padding:48px 20px; color:var(--text-soft); font-size:14px; line-height:1.9; }
+.empty-icon { display:block; margin:0 auto 12px; opacity:0.45; }
+
+.fab { position:fixed; bottom:92px; right:20px; width:54px; height:54px; background:var(--rose-dark); border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--white); box-shadow:0 4px 18px rgba(192,104,122,0.4); z-index:30; transition:transform 0.15s,box-shadow 0.15s; }
+.fab:hover { transform:scale(1.08); }
+.fab:active { transform:scale(0.95); }
+
+.bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:var(--white); border-top:1px solid var(--rose); display:flex; z-index:40; }
+.nav-btn { flex:1; background:none; border:none; cursor:pointer; padding:12px 0 10px; display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--text-soft); font-size:10px; letter-spacing:0.07em; text-transform:uppercase; font-family:Georgia,serif; transition:color 0.15s; }
+.nav-btn.active { color:var(--rose-dark); }
+
+.add-body { padding:0 20px 100px; }
+.field-label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-soft); margin-bottom:7px; margin-top:22px; }
+.date-display { background:var(--rose-light); border:1px solid var(--rose); border-radius:12px; padding:13px 16px; font-size:14px; color:var(--text-dark); display:flex; align-items:center; justify-content:space-between; font-family:Georgia,serif; }
+.photos-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.photo-thumb { aspect-ratio:3/4; border-radius:10px; overflow:hidden; position:relative; background:var(--sand); }
+.photo-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.photo-thumb-remove { position:absolute; top:5px; right:5px; background:rgba(58,37,48,0.65); color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+.photo-add-btn { aspect-ratio:3/4; border-radius:10px; background:var(--sand); border:1.5px dashed var(--rose-mid); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; color:var(--text-soft); font-size:12px; letter-spacing:0.04em; transition:background 0.15s; font-family:Georgia,serif; }
+.photo-add-btn:hover { background:var(--rose-light); border-color:var(--rose-dark); }
+#file-input { display:none; }
+textarea { width:100%; background:var(--white); border:1px solid var(--rose); border-radius:12px; padding:13px 15px; font-size:14px; color:var(--text-dark); font-family:Georgia,serif; resize:none; height:88px; line-height:1.65; transition:border-color 0.15s; }
+textarea::placeholder { color:var(--text-soft); }
+textarea:focus { outline:none; border-color:var(--rose-mid); }
+.tags-input-wrap { display:flex; gap:8px; }
+.tags-input-wrap input { flex:1; background:var(--white); border:1px solid var(--rose); border-radius:12px; padding:11px 14px; font-size:13px; color:var(--text-dark); font-family:Georgia,serif; }
+.tags-input-wrap input:focus { outline:none; border-color:var(--rose-mid); }
+.tags-input-wrap button { background:var(--rose-light); border:1px solid var(--rose); border-radius:12px; padding:11px 14px; color:var(--rose-dark); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+.tags-input-wrap button:hover { background:var(--rose); }
+.tags-preview { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; min-height:28px; }
+.tag-removable { background:var(--rose-light); color:var(--rose-dark); border-radius:20px; padding:4px 12px; font-size:12px; display:flex; align-items:center; gap:5px; cursor:pointer; font-family:Georgia,serif; transition:background 0.15s; }
+.tag-removable:hover { background:var(--rose); }
+.remove-x { opacity:0.5; font-size:14px; }
+.save-btn { width:100%; margin-top:32px; background:var(--rose-dark); color:var(--white); border:none; border-radius:16px; padding:17px; font-size:15px; font-family:Georgia,serif; letter-spacing:0.07em; cursor:pointer; transition:background 0.15s; }
+.save-btn:hover { background:#a85568; }
+.save-btn:active { transform:scale(0.98); }
+
+.detail-slideshow { width:100%; height:320px; background:var(--sand); position:relative; overflow:hidden; }
+.detail-slideshow-track { display:flex; height:100%; transition:transform 0.3s ease; }
+.detail-slideshow-track img { flex-shrink:0; width:100%; height:100%; object-fit:cover; }
+.detail-slide-dots { position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:6px; pointer-events:none; }
+.detail-slide-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.5); transition:background 0.2s; pointer-events:all; cursor:pointer; }
+.detail-slide-dot.active { background:white; }
+.detail-slide-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.75); border:none; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-dark); }
+.detail-slide-nav.prev { left:10px; }
+.detail-slide-nav.next { right:10px; }
+.detail-img-placeholder { width:100%; height:100%; background:linear-gradient(135deg,var(--rose-light) 0%,var(--lavender) 100%); display:flex; align-items:center; justify-content:center; opacity:0.5; }
+.detail-body { padding:22px 20px 100px; }
+.detail-date { font-size:12px; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-soft); margin-bottom:10px; }
+.detail-note { font-size:16px; color:var(--text-dark); line-height:1.75; margin-bottom:18px; }
+.delete-btn { width:100%; margin-top:28px; background:none; border:1px solid var(--rose); border-radius:16px; padding:15px; font-size:14px; color:var(--text-soft); font-family:Georgia,serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; letter-spacing:0.04em; transition:background 0.15s,color 0.15s; }
+.delete-btn:hover { background:var(--rose-light); color:var(--rose-dark); }
+
+.gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:16px 20px; }
+.gallery-item { border-radius:12px; overflow:hidden; cursor:pointer; aspect-ratio:3/4; background:var(--sand); transition:transform 0.15s; position:relative; }
+.gallery-item:hover { transform:scale(0.97); }
+.gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+
+.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:var(--text-dark); color:var(--white); padding:10px 22px; border-radius:24px; font-size:13px; font-family:Georgia,serif; opacity:0; pointer-events:none; transition:opacity 0.3s; z-index:99; white-space:nowrap; letter-spacing:0.04em; }
+.toast.show { opacity:1; }
+
+/* LIGHTBOX */
+.lightbox { display:none; position:fixed; inset:0; background:rgba(20,10,15,0.96); z-index:200; flex-direction:column; align-items:center; justify-content:center; }
+.lightbox.open { display:flex; }
+.lightbox-img { max-width:100%; max-height:85dvh; object-fit:contain; border-radius:4px; user-select:none; transition:opacity 0.2s; }
+.lightbox-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.12); border:none; border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; }
+.lightbox-close:hover { background:rgba(255,255,255,0.22); }
+.lightbox-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.12); border:none; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; }
+.lightbox-nav:hover { background:rgba(255,255,255,0.22); }
+.lightbox-nav.prev { left:12px; }
+.lightbox-nav.next { right:12px; }
+.lightbox-counter { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:12px; font-family:Georgia,serif; letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+
+<!-- SVG SPRITE (ícones embutidos, sem dependência de internet) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="ic-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+  <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+  <symbol id="ic-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="ic-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+  <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></symbol>
+  <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="ic-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+  <symbol id="ic-hanger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 18H3.62a1 1 0 0 1-.7-1.71L12 8"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/></symbol>
+  <symbol id="ic-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a4 4 0 0 1 0 8"/><path d="M12 14a4 4 0 0 0 0 8"/><path d="M2 12a4 4 0 0 1 8 0"/><path d="M14 12a4 4 0 0 0 8 0"/></symbol>
+</svg>
+
+<div id="app">
+
+  <!-- HOME -->
+  <div id="home-screen" class="screen active">
+    <header class="header">
+      <p class="header-sub">diário de looks</p>
+      <h1 class="header-title">mon journal</h1>
+    </header>
+    <section class="calendar-wrap">
+      <div class="cal-month-nav">
+        <button id="prev-month" aria-label="Mês anterior"><svg width="18" height="18"><use href="#ic-chevron-left"/></svg></button>
+        <span class="cal-month-label" id="month-label"></span>
+        <button id="next-month" aria-label="Próximo mês"><svg width="18" height="18"><use href="#ic-chevron-right"/></svg></button>
+      </div>
+      <div class="cal-grid" id="cal-grid">
+        <div class="cal-day-name">D</div><div class="cal-day-name">S</div>
+        <div class="cal-day-name">T</div><div class="cal-day-name">Q</div>
+        <div class="cal-day-name">Q</div><div class="cal-day-name">S</div>
+        <div class="cal-day-name">S</div>
+      </div>
+    </section>
+    <div class="section-divider"></div>
+    <section class="feed-wrap">
+      <p class="feed-title" id="feed-title">Todos os looks</p>
+      <div id="feed-list"></div>
+    </section>
+    <button class="fab" id="fab-btn" aria-label="Novo look"><svg width="24" height="24"><use href="#ic-plus"/></svg></button>
+  </div>
+
+  <!-- ADICIONAR -->
+  <div id="add-screen" class="screen">
+    <header class="header header--inner">
+      <button class="header-back" id="back-from-add" aria-label="Voltar"><svg width="22" height="22"><use href="#ic-arrow-left"/></svg></button>
+      <h1 class="header-title">novo look</h1>
+    </header>
+    <div class="add-body">
+      <label class="field-label">Data</label>
+      <div class="date-display" id="selected-date-display" data-date="">
+        <span id="selected-date-text"></span>
+        <svg width="18" height="18" style="color:var(--text-soft)"><use href="#ic-calendar"/></svg>
+      </div>
+      <label class="field-label">Fotos do look</label>
+      <div class="photos-grid" id="photos-grid"></div>
+      <input type="file" id="file-input" accept="image/*" multiple>
+      <label class="field-label" for="note-input">Notas</label>
+      <textarea id="note-input" placeholder="Como você se sentiu com esse look? Qual a ocasião?"></textarea>
+      <label class="field-label">Tags</label>
+      <div class="tags-input-wrap">
+        <input type="text" id="tag-input" placeholder="casual, trabalho, evento…">
+        <button id="add-tag-btn"><svg width="18" height="18"><use href="#ic-plus"/></svg></button>
+      </div>
+      <div class="tags-preview" id="tags-preview"></div>
+      <button class="save-btn" id="save-btn">Salvar look ✦</button>
+    </div>
+  </div>
+
+  <!-- DETALHE -->
+  <div id="detail-screen" class="screen">
+    <header class="header header--inner">
+      <button class="header-back" id="back-from-detail" aria-label="Voltar"><svg width="22" height="22"><use href="#ic-arrow-left"/></svg></button>
+      <h1 class="header-title">look do dia</h1>
+    </header>
+    <div class="detail-slideshow" id="detail-slideshow"></div>
+    <div class="detail-body">
+      <p class="detail-date" id="detail-date"></p>
+      <p class="detail-note" id="detail-note"></p>
+      <div class="look-card-tags" id="detail-tags"></div>
+      <button class="delete-btn" id="delete-btn">
+        <svg width="16" height="16"><use href="#ic-trash"/></svg> Remover este look
+      </button>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home">
+      <svg width="22" height="22"><use href="#ic-book"/></svg><span>diário</span>
+    </button>
+    <button class="nav-btn" id="nav-gallery">
+      <svg width="22" height="22"><use href="#ic-photo"/></svg><span>galeria</span>
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualização da foto">
+  <button class="lightbox-close" id="lb-close" aria-label="Fechar">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="lightbox-nav prev" id="lb-prev" aria-label="Foto anterior">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <img class="lightbox-img" id="lb-img" src="" alt="Foto em tela cheia">
+  <button class="lightbox-nav next" id="lb-next" aria-label="Próxima foto">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="lightbox-counter" id="lb-counter"></div>
+</div>
+
+<script>
+var STORAGE_KEY='monJournal_v2';
+// ── LIGHTBOX ──────────────────────────────────
+var lb={photos:[],index:0};
+
+function openLightbox(photos,index){
+  if(!photos||!photos.length)return;
+  lb.photos=photos;lb.index=index||0;
+  updateLightboxImg();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+function updateLightboxImg(){
+  var img=document.getElementById('lb-img');
+  var counter=document.getElementById('lb-counter');
+  var prev=document.getElementById('lb-prev');
+  var next=document.getElementById('lb-next');
+  img.style.opacity='0';
+  setTimeout(function(){img.src=lb.photos[lb.index];img.style.opacity='1';},100);
+  var total=lb.photos.length;
+  counter.textContent=total>1?(lb.index+1)+' / '+total:'';
+  prev.style.display=total>1?'flex':'none';
+  next.style.display=total>1?'flex':'none';
+}
+function lbNext(){lb.index=(lb.index+1)%lb.photos.length;updateLightboxImg();}
+function lbPrev(){lb.index=(lb.index-1+lb.photos.length)%lb.photos.length;updateLightboxImg();}
+
+
+var state={looks:[],currentMonth:new Date().getMonth(),currentYear:new Date().getFullYear(),selectedDate:null,currentTags:[],pendingPhotos:[],editingId:null,activeView:'diary'};
+
+function ic(id,s){s=s||20;return'<svg width="'+s+'" height="'+s+'" style="display:block"><use href="#'+id+'"/></svg>';}
+
+function loadData(){try{var r=localStorage.getItem(STORAGE_KEY);if(r){var p=JSON.parse(r);state.looks=Array.isArray(p.looks)?p.looks:[];}}catch(e){state.looks=[];}}
+function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({looks:state.looks}));}catch(e){showToast('Erro ao salvar.');}}
+
+var MP=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var DP=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+
+function todayStr(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function fmtDate(ds){var p=ds.split('-').map(Number);var d=new Date(p[0],p[1]-1,p[2]);return DP[d.getDay()]+', '+p[2]+' de '+MP[p[1]-1].toLowerCase()+' de '+p[0];}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderCalendar(){
+  document.getElementById('month-label').textContent=MP[state.currentMonth]+' '+state.currentYear;
+  var grid=document.getElementById('cal-grid');
+  var names=Array.from(grid.querySelectorAll('.cal-day-name'));
+  grid.innerHTML='';names.forEach(function(el){grid.appendChild(el);});
+  var fd=new Date(state.currentYear,state.currentMonth,1).getDay();
+  var dc=new Date(state.currentYear,state.currentMonth+1,0).getDate();
+  var today=todayStr();var em={};
+  state.looks.forEach(function(l){em[l.date]=true;});
+  for(var i=0;i<fd;i++){var e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(var day=1;day<=dc;day++){
+    var ds=state.currentYear+'-'+String(state.currentMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    var el=document.createElement('div');el.className='cal-day';el.textContent=day;
+    if(ds===today)el.classList.add('today');
+    if(ds===state.selectedDate)el.classList.add('selected');
+    if(em[ds])el.classList.add('has-entry');
+    (function(dateStr){el.addEventListener('click',function(){state.selectedDate=(state.selectedDate===dateStr)?null:dateStr;renderCalendar();renderFeed();});})(ds);
+    grid.appendChild(el);
+  }
+}
+
+function makeCarousel(photos,h){
+  if(!photos||!photos.length){return'<div class="look-card-img-placeholder" style="height:'+h+'px">'+ic('ic-hanger',36)+'<span style="font-size:13px">sem foto</span></div>';}
+  var id='c'+Date.now()+Math.floor(Math.random()*9999);
+  var imgs=photos.map(function(p,pi){return'<img src="'+p+'" data-lb-src="'+p+'" data-lb-index="'+pi+'" style="flex-shrink:0;width:100%;height:'+h+'px;object-fit:cover;cursor:zoom-in;" alt="foto">';}).join('');
+  var dots=photos.length>1?'<div class="card-photo-dots">'+photos.map(function(_,i){return'<div class="card-photo-dot'+(i===0?' active':'')+'" data-car="'+id+'" data-i="'+i+'"></div>';}).join('')+'</div>':'';
+  var navs=photos.length>1?'<button class="card-photos-nav prev" data-car="'+id+'" data-dir="-1">'+ic('ic-chevron-left',14)+'</button><button class="card-photos-nav next" data-car="'+id+'" data-dir="1">'+ic('ic-chevron-right',14)+'</button>':'';
+  return'<div style="position:relative;overflow:hidden;height:'+h+'px" id="'+id+'"><div class="card-photos-track" style="height:'+h+'px">'+imgs+'</div>'+dots+navs+'</div>';
+}
+
+function bindCarousel(container){
+  var idx={};
+  // Abrir lightbox ao clicar na foto
+  container.querySelectorAll('img[data-lb-src]').forEach(function(img){
+    img.addEventListener('click',function(e){
+      e.stopPropagation();
+      var car=img.closest('[id^="c"]');
+      var allImgs=car?Array.from(car.querySelectorAll('img[data-lb-src]')):[];
+      var photos=allImgs.length?allImgs.map(function(i){return i.dataset.lbSrc;}):[];
+      if(!photos.length)photos=[img.dataset.lbSrc];
+      var clickedIndex=parseInt(img.dataset.lbIndex)||0;
+      openLightbox(photos,clickedIndex);
+    });
+  });
+  container.querySelectorAll('.card-photos-nav').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();var cid=btn.dataset.car;var car=document.getElementById(cid);if(!car)return;
+      var track=car.querySelector('.card-photos-track');var total=track.children.length;
+      var cur=((idx[cid]||0)+parseInt(btn.dataset.dir)+total)%total;idx[cid]=cur;
+      track.style.transform='translateX(-'+(cur*100)+'%)';
+      car.querySelectorAll('.card-photo-dot').forEach(function(d,i){d.classList.toggle('active',i===cur);});
+    });
+  });
+  container.querySelectorAll('.card-photo-dot').forEach(function(dot){
+    dot.addEventListener('click',function(e){
+      e.stopPropagation();var cid=dot.dataset.car;var car=document.getElementById(cid);if(!car)return;
+      var i=parseInt(dot.dataset.i);idx[cid]=i;
+      car.querySelector('.card-photos-track').style.transform='translateX(-'+(i*100)+'%)';
+      car.querySelectorAll('.card-photo-dot').forEach(function(d,j){d.classList.toggle('active',j===i);});
+    });
+  });
+}
+
+function renderFeed(){
+  var list=document.getElementById('feed-list');var te=document.getElementById('feed-title');
+  var looks=state.looks.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(state.selectedDate){looks=looks.filter(function(l){return l.date===state.selectedDate;});te.textContent=fmtDate(state.selectedDate);}
+  else{te.textContent='Todos os looks';}
+  if(!looks.length){
+    list.innerHTML='<div class="empty-feed"><span class="empty-icon">'+ic('ic-flower',48)+'</span>'+(state.selectedDate?'Nenhum look neste dia ainda.':'Seu diário está vazio.<br>Adicione seu primeiro look!')+'</div>';return;
+  }
+  list.innerHTML='';
+  looks.forEach(function(look){
+    var card=document.createElement('div');card.className='look-card';
+    var photos=look.photos||(look.photo?[look.photo]:[]);
+    var tags=(look.tags||[]).map(function(t){return'<span class="tag">'+esc(t)+'</span>';}).join('');
+    card.innerHTML=makeCarousel(photos,220)+'<div class="look-card-body"><p class="look-card-date">'+fmtDate(look.date)+'</p><p class="look-card-note">'+esc(look.note||'Sem notas')+'</p><div class="look-card-tags">'+tags+'</div></div>';
+    bindCarousel(card);
+    (function(id){
+      card.querySelector('.look-card-body').addEventListener('click',function(){openDetail(id);});
+      var ph=card.querySelector('.look-card-img-placeholder');if(ph)ph.addEventListener('click',function(){openDetail(id);});
+    })(look.id);
+    list.appendChild(card);
+  });
+}
+
+function openDetail(id){
+  var look=state.looks.find(function(l){return l.id===id;});if(!look)return;
+  state.editingId=id;
+  var photos=look.photos||(look.photo?[look.photo]:[]);
+  var ss=document.getElementById('detail-slideshow');
+  if(!photos.length){ss.innerHTML='<div class="detail-img-placeholder">'+ic('ic-hanger',56)+'</div>';}
+  else{
+    ss.innerHTML=makeCarousel(photos,320);
+    bindCarousel(ss);
+    // clique na foto do detalhe também abre lightbox
+    ss.querySelectorAll('img[data-lb-src]').forEach(function(img){
+      img.style.cursor='zoom-in';
+    });
+  }
+  document.getElementById('detail-date').textContent=fmtDate(look.date);
+  document.getElementById('detail-note').textContent=look.note||'Sem notas';
+  document.getElementById('detail-tags').innerHTML=(look.tags||[]).map(function(t){return'<span class="tag">'+esc(t)+'</span>';}).join('');
+  showScreen('detail-screen');
+}
+
+function openAddScreen(date){
+  state.pendingPhotos=[];state.currentTags=[];
+  document.getElementById('note-input').value='';
+  document.getElementById('tag-input').value='';
+  document.getElementById('tags-preview').innerHTML='';
+  document.getElementById('file-input').value='';
+  var d=date||state.selectedDate||todayStr();
+  document.getElementById('selected-date-text').textContent=fmtDate(d);
+  document.getElementById('selected-date-display').dataset.date=d;
+  renderPhotosGrid();showScreen('add-screen');
+}
+
+function renderPhotosGrid(){
+  var grid=document.getElementById('photos-grid');grid.innerHTML='';
+  state.pendingPhotos.forEach(function(photo,index){
+    var thumb=document.createElement('div');thumb.className='photo-thumb';
+    var img=document.createElement('img');img.src=photo;img.alt='foto '+(index+1);
+    var rb=document.createElement('button');rb.className='photo-thumb-remove';rb.innerHTML='&times;';rb.setAttribute('aria-label','Remover');
+    (function(i){rb.addEventListener('click',function(e){e.stopPropagation();state.pendingPhotos.splice(i,1);renderPhotosGrid();});})(index);
+    thumb.appendChild(img);thumb.appendChild(rb);grid.appendChild(thumb);
+  });
+  var ab=document.createElement('div');ab.className='photo-add-btn';ab.setAttribute('role','button');ab.setAttribute('tabindex','0');
+  ab.innerHTML=ic('ic-camera',26)+'<span>adicionar foto</span>';
+  ab.addEventListener('click',function(){document.getElementById('file-input').click();});
+  ab.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();document.getElementById('file-input').click();}});
+  grid.appendChild(ab);
+}
+
+function renderTagsPreview(){
+  var w=document.getElementById('tags-preview');w.innerHTML='';
+  state.currentTags.forEach(function(tag,i){
+    var s=document.createElement('span');s.className='tag-removable';
+    s.innerHTML=esc(tag)+'<span class="remove-x">×</span>';
+    (function(idx){s.addEventListener('click',function(){state.currentTags.splice(idx,1);renderTagsPreview();});})(i);
+    w.appendChild(s);
+  });
+}
+
+function addTag(){var inp=document.getElementById('tag-input');var v=inp.value.trim().toLowerCase();if(v&&state.currentTags.indexOf(v)===-1){state.currentTags.push(v);renderTagsPreview();inp.value='';inp.focus();}}
+
+function saveLook(){
+  var date=document.getElementById('selected-date-display').dataset.date||todayStr();
+  var note=document.getElementById('note-input').value.trim();
+  state.looks.push({id:Date.now().toString(),date:date,note:note,photos:state.pendingPhotos.slice(),tags:state.currentTags.slice()});
+  saveData();showToast('Look salvo com sucesso ✦');
+  showScreen('home-screen');state.selectedDate=null;renderCalendar();renderFeed();
+}
+
+function renderGallery(){
+  var list=document.getElementById('feed-list');state.selectedDate=null;renderCalendar();
+  document.getElementById('feed-title').textContent='Galeria de looks';
+  var wp=state.looks.filter(function(l){var p=l.photos||(l.photo?[l.photo]:[]);return p.length>0;}).sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!wp.length){list.innerHTML='<div class="empty-feed"><span class="empty-icon">'+ic('ic-camera',48)+'</span>Ainda não há fotos.<br>Adicione um look com foto!</div>';return;}
+  var grid=document.createElement('div');grid.className='gallery-grid';
+  wp.forEach(function(look){
+    var photos=look.photos||(look.photo?[look.photo]:[]);
+    var item=document.createElement('div');item.className='gallery-item';
+    var img=document.createElement('img');img.src=photos[0];img.alt='Look';item.appendChild(img);
+    if(photos.length>1){var b=document.createElement('div');b.style.cssText='position:absolute;bottom:6px;right:6px;background:rgba(58,37,48,0.6);color:white;border-radius:10px;padding:2px 7px;font-size:11px;font-family:Georgia,serif;';b.textContent='1/'+photos.length;item.appendChild(b);}
+    (function(id){item.addEventListener('click',function(){openDetail(id);});})(look.id);
+    grid.appendChild(item);
+  });
+  list.innerHTML='';list.appendChild(grid);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  loadData();renderCalendar();renderFeed();renderPhotosGrid();
+
+  // Lightbox eventos
+  var lbEl=document.getElementById('lightbox');
+  var lbTouch={x:0,y:0};
+  document.getElementById('lb-close').addEventListener('click',closeLightbox);
+  document.getElementById('lb-prev').addEventListener('click',function(e){e.stopPropagation();lbPrev();});
+  document.getElementById('lb-next').addEventListener('click',function(e){e.stopPropagation();lbNext();});
+  lbEl.addEventListener('click',function(e){if(e.target===lbEl)closeLightbox();});
+  lbEl.addEventListener('touchstart',function(e){lbTouch.x=e.touches[0].clientX;lbTouch.y=e.touches[0].clientY;},{passive:true});
+  lbEl.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-lbTouch.x;
+    var dy=e.changedTouches[0].clientY-lbTouch.y;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){dx<0?lbNext():lbPrev();}
+    else if(Math.abs(dy)>80){closeLightbox();}
+  },{passive:true});
+  document.addEventListener('keydown',function(e){
+    if(!lbEl.classList.contains('open'))return;
+    if(e.key==='Escape')closeLightbox();
+    if(e.key==='ArrowRight')lbNext();
+    if(e.key==='ArrowLeft')lbPrev();
+  });
+  document.getElementById('prev-month').addEventListener('click',function(){state.currentMonth--;if(state.currentMonth<0){state.currentMonth=11;state.currentYear--;}renderCalendar();});
+  document.getElementById('next-month').addEventListener('click',function(){state.currentMonth++;if(state.currentMonth>11){state.currentMonth=0;state.currentYear++;}renderCalendar();});
+  document.getElementById('fab-btn').addEventListener('click',function(){openAddScreen();});
+  document.getElementById('back-from-add').addEventListener('click',function(){showScreen('home-screen');renderFeed();});
+  document.getElementById('back-from-detail').addEventListener('click',function(){showScreen('home-screen');state.activeView==='gallery'?renderGallery():renderFeed();});
+  document.getElementById('file-input').addEventListener('change',function(e){
+    var files=Array.from(e.target.files);var pending=files.length;if(!pending)return;
+    files.forEach(function(file){var r=new FileReader();r.onload=function(ev){state.pendingPhotos.push(ev.target.result);pending--;if(pending===0)renderPhotosGrid();};r.readAsDataURL(file);});
+    e.target.value='';
+  });
+  document.getElementById('add-tag-btn').addEventListener('click',addTag);
+  document.getElementById('tag-input').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addTag();}});
+  document.getElementById('save-btn').addEventListener('click',saveLook);
+  document.getElementById('delete-btn').addEventListener('click',function(){
+    if(!state.editingId)return;
+    state.looks=state.looks.filter(function(l){return l.id!==state.editingId;});
+    saveData();showToast('Look removido.');showScreen('home-screen');renderCalendar();
+    state.activeView==='gallery'?renderGallery():renderFeed();
+  });
+  document.getElementById('nav-home').addEventListener('click',function(){
+    state.activeView='diary';document.getElementById('nav-home').classList.add('active');document.getElementById('nav-gallery').classList.remove('active');
+    state.selectedDate=null;showScreen('home-screen');renderCalendar();renderFeed();
+  });
+  document.getElementById('nav-gallery').addEventListener('click',function(){
+    state.activeView='gallery';document.getElementById('nav-gallery').classList.add('active');document.getElementById('nav-home').classList.remove('active');
+    showScreen('home-screen');renderGallery();
+  });
+});
+</script>
+</body>
+</html>
